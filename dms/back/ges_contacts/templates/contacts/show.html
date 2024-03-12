@@ -1,0 +1,43 @@
+{% extends './index.html' %} {% load static %} {% block outlet %}
+<div id="contact">
+    <div>
+        {% if contact.avatar %} 
+        <img src="{{ contact.avatar.url }}" 
+            alt="{{ contact.first_name }} {{ contact.last_name }}" />
+        {% endif %}
+        <img 
+            alt="no image" />
+    </div>
+
+    <div>
+        <h1>
+            {% if contact.first_name or contact.last_name %} {{ contact.first_name }}
+            {{ contact.last_name }} {% else %}
+            <i>No Name</i>
+            {% endif %} {% if contact.favorite %}
+            <span>★</span>
+            {% endif %}
+        </h1>
+        <h3>{{ contact.phone }}</h3>
+        {% if contact.twitter %}
+        <p>
+            <a target="_blank" href="https://twitter.com/{{ contact.twitter }}">
+                {{ contact.twitter }}
+            </a>
+        </p>
+        {% endif %} {% if contact.notes %}
+        <p>{{ contact.notes }}</p>
+        {% endif %}
+
+        <div>
+            <a href="{% url 'contact_update' pk=contact.id %}">
+                <button type="button">Edit</button>
+            </a>
+            <form method="post" action="{% url 'contact_delete' pk=contact.id %}">
+                {% csrf_token %}
+                <button type="submit" id="error">Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

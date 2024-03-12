@@ -1,0 +1,89 @@
+<!-- contacts_template.html -->
+
+{% extends '../base.html' %}
+{% block content %}
+<div id="sidebar">
+  <h1>Gerer Vos Contacts</h1>
+  <div>
+    <form id="search-form" role="search">
+      <input id="q" aria-label="Search contacts" placeholder="Search" type="search" name="q" />
+    </form>
+    <a href="{% url 'contact_create' %}">
+      <button type="submit">New</button>
+    </a>
+  </div>
+  <nav>
+   <div id="uldiv">
+
+    {% if contacts %}
+    <ul id="cl">
+      {% for contact in contacts %}
+      <li>
+        <a href="{% url 'contact_show' pk=contact.pk %}">
+          {{ contact.first_name|default:"" }} {{ contact.last_name|default:"" }}
+          {% if contact.favorite %}
+          <span>★</span>
+          {% endif %}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+   </div>
+    <p>
+      <i>No contacts</i>
+    </p>
+    {% endif %}
+  </nav>
+</div>
+<div id="detail" class="{% if navigation_state == 'loading' %}loading{% endif %}">
+  {% block outlet %}{% endblock %}
+</div>
+<script>
+  const div = document.getElementById("uldiv");
+  const ul = document.createElement('ul');
+  document.getElementById("q").addEventListener("keyup", event => {
+     // Supprimez le contenu précédent avant d'ajouter le nouvel élément UL
+    while (div.firstChild) {
+      div.removeChild(div.firstChild);
+    }
+    //console.log(event.target.value);
+    const request = new Request(`search/${event.target.value}`, { method: 'GET' });
+     // Supprimez le contenu précédent avant d'ajouter le nouvel élément UL
+     while (div.firstChild) {
+      div.removeChild(div.firstChild);
+    }
+    fetch(request)
+      .then(response => response.json())
+      .then(result => {
+         // Supprimez le contenu précédent avant d'ajouter le nouvel élément UL
+        while (div.firstChild) {
+          div.removeChild(div.firstChild);
+        }
+        console.log(result);
+        result.contacts.forEach(contact => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = `/contact_show/${contact.id}`;  // Mettez votre URL correcte ici
+          a.textContent = `${contact.first_name || ''} ${contact.last_name || ''}`;
+
+          if (contact.favorite) {
+            const span = document.createElement('span');
+            span.textContent = '★';
+            a.appendChild(span);
+          }
+
+          li.appendChild(a);
+          ul.appendChild(li);
+        });
+
+        // Supprimez le contenu précédent avant d'ajouter le nouvel élément UL
+        while (div.firstChild) {
+          div.removeChild(div.firstChild);
+        }
+
+        div.appendChild(ul);
+      });
+  })
+</script>
+{% endblock %}
